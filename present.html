@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네잎클로버 선물</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            cursor: url('small.png'), auto;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 40px;
+            font-weight: 200;
+        }
+
+        input {
+            padding: 15px;
+            font-size: 20px;
+            margin-bottom: 35px;
+            width: 400px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            background-color: #333;
+            color: white;
+            font-weight: 200;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #16b88a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: url('small2.png'), auto;
+            transition: background-color 0.3s, box-shadow 0.3s ease;
+            font-weight: 200;
+        }
+
+        button:hover {
+            background-color: #0e876b;
+            box-shadow: 0 0 10px 4px rgba(255, 255, 255, 0.6);
+        }
+
+        .clover-container {
+            margin-top: 40px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .clover-container.fade-in {
+            opacity: 1;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: 200;
+            opacity: 0;
+            animation: fadeInText 1.5s forwards;
+        }
+
+        .message:nth-child(1) {
+            animation-delay: 0.5s;
+        }
+
+        .message:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .message:nth-child(3) {
+            animation-delay: 1.5s;
+        }
+
+        .clover-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 3s;
+        }
+
+        @keyframes fadeInText {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* 네잎클로버 애니메이션 */
+        .clover {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fall linear infinite;
+            z-index: -1;
+        }
+
+        .clover .leaf {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #00ff00;
+            border-radius: 50%;
+        }
+
+        .clover .leaf:nth-child(1) {
+            top: -7.5px;
+            left: 7.5px;
+        }
+
+        .clover .leaf:nth-child(2) {
+            top: 7.5px;
+            left: 22.5px;
+            transform: rotate(90deg);
+        }
+
+        .clover .leaf:nth-child(3) {
+            top: 22.5px;
+            left: 7.5px;
+            transform: rotate(180deg);
+        }
+
+        .clover .leaf:nth-child(4) {
+            top: 7.5px;
+            left: -7.5px;
+            transform: rotate(270deg);
+        }
+
+        @keyframes fall {
+            0% {
+                top: -10%;
+            }
+            100% {
+                top: 110%;
+            }
+        }
+
+        /* Finish 버튼 스타일 */
+        .finish-button {
+            position: absolute;
+            bottom: 10%;
+            right: 10%;
+            padding: 15px 30px;
+            background-color: #16b88a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 10px 4px rgba(255, 255, 255, 0.6);
+            transition: background-color 0.3s, box-shadow 0.3s ease;
+        }
+
+        .finish-button:hover {
+            background-color: #0e876b;
+            box-shadow: 0 0 10px 4px rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <h1>당신의 이름에 어울리는 네잎클로버를 선물해 드릴게요.</h1>
+    <input type="text" id="userName" placeholder="Your name">
+    <button onclick="generateClover()">Get it</button>
+
+    <div class="clover-container" id="cloverContainer"></div>
+
+    <button class="finish-button" onclick="goToNextPage()">Finish</button>
+
+    <script>
+        const frontImages = [
+            { url: 'p1.png' },
+            { url: 'p2.png' },
+            { url: 'p3.jpg' },
+            { url: 'p4.jpg' },
+            { url: 'p5.jpg' },
+        ];
+
+        // 랜덤 이미지 설정
+        function generateClover() {
+            const userName = document.getElementById('userName').value.trim();
+            const cloverContainer = document.getElementById('cloverContainer');
+
+            if (!userName) {
+                cloverContainer.innerHTML = '<p class="message">이름을 입력해주세요!</p>';
+                return;
+            }
+
+            // 네잎클로버 이미지 랜덤 선택
+            const randomIndex = Math.floor(Math.random() * frontImages.length);
+            const selectedImage = frontImages[randomIndex];
+
+            cloverContainer.innerHTML = `
+                <p class="message">${userName}님께 어울리는 네잎클로버를 준비했어요.</p>
+                <p class="message">당신에게 행운을 가져다 줄 거예요.</p>
+                <p class="message">잘 간직해 주세요.</p>
+                <img src="${selectedImage.url}" class="clover-image" alt="네잎클로버">
+            `;
+
+            cloverContainer.classList.remove('fade-in');
+            setTimeout(() => cloverContainer.classList.add('fade-in'), 100);
+        }
+
+        // 네잎클로버 애니메이션 생성 함수
+        function createFallingClovers() {
+            const numClovers = 20;
+            for (let i = 0; i < numClovers; i++) {
+                const clover = document.createElement('div');
+                clover.className = 'clover';
+                clover.style.left = `${Math.random() * 100}vw`; // 화면 가로 위치 랜덤
+                clover.style.animationDuration = `${Math.random() * 5 + 5}s`; // 떨어지는 속도 랜덤
+                clover.style.animationDelay = `${Math.random() * 5}s`; // 지연 시간 랜덤
+                clover.style.width = `${Math.random() * 30 + 20}px`; // 크기 랜덤
+                clover.style.height = `${Math.random() * 30 + 20}px`; // 크기 랜덤
+
+                for (let j = 0; j < 4; j++) {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'leaf';
+                    clover.appendChild(leaf);
+                }
+
+                document.body.appendChild(clover);
+            }
+        }
+
+        createFallingClovers(); // 페이지 로딩 시 애니메이션 시작
+
+        // 페이지 전환 함수
+        function goToNextPage() {
+            window.location.href = "proto tarot1.html"; // 여기에 넘어가고 싶은 페이지 URL을 적어주세요.
+        }
+    </script>
+</body>
+</html>

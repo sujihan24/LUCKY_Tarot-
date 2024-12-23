@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarot Card Selection</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            margin: 0;
+            cursor: url('small.png'), auto;
+        }
+
+        .card-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 1400px; /* 아이맥 해상도에 맞게 확대 */
+            height: 750px; /* 높이 조정 */
+        }
+
+        .card {
+            position: absolute;
+            width: 300px; /* 카드 크기 확대 */
+            height: 420px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 12px; /* 둥근 모서리 확대 */
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.8);
+            transform-origin: bottom center;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 틀에 맞게 비율 조정 */
+            display: block;
+        }
+
+        .card:hover {
+            cursor: url('small2.png'), auto;
+        }
+
+        .shuffle-button {
+            position: absolute;
+            bottom: 5%; /* 버튼 위치 조정 */
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px 40px; /* 버튼 크기 확대 */
+            border: 1px solid white;
+            background-color: black;
+            color: white;
+            font-size: 18px; /* 버튼 글자 크기 확대 */
+            transition: box-shadow 0.3s ease;
+        }
+
+        .shuffle-button:hover {
+            box-shadow: 0 0 14px 6px rgba(255, 255, 255, 0.6);
+            cursor: url('small2.png'), auto;
+        }
+
+        .clover-overlay {
+            position: absolute;
+            width: 150px; /* 클로버 크기 확대 */
+            height: 150px;
+            background: url('clover.png') no-repeat center center;
+            background-size: contain;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .clover-overlay.fade-in {
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+
+        .clover-overlay.fade-out {
+            opacity: 0;
+        }
+
+        .card.enlarged {
+            transform: scale(2) translateY(-20px);
+            z-index: 10;
+            transition: transform 0.5s ease, opacity 0.3s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container" id="cardContainer">
+        <div class="card"><img src="back.jpg" alt="Card Image 1"></div>
+        <div class="card"><img src="back.jpg" alt="Card Image 2"></div>
+        <div class="card"><img src="back.jpg" alt="Card Image 3"></div>
+        <div class="card"><img src="back.jpg" alt="Card Image 4"></div>
+        <div class="card"><img src="back.jpg" alt="Card Image 5"></div>
+        <div class="card"><img src="back.jpg" alt="Card Image 6"></div>
+        <div class="card"><img src="back.jpg" alt="Card Image 7"></div>
+    </div>
+    <button class="shuffle-button" onclick="shuffleCards()">Shuffle</button>
+
+    <div class="clover-overlay" id="cloverOverlay"></div>
+
+    <script>
+        const cardContainer = document.getElementById('cardContainer');
+        const cards = document.querySelectorAll('.card');
+        const cloverOverlay = document.getElementById('cloverOverlay');
+
+        function arrangeCards() {
+            const totalCards = cards.length;
+            const angleSpread = 120;
+            const baseAngle = -angleSpread / 2;
+
+            cards.forEach((card, index) => {
+                const angle = baseAngle + (index * angleSpread) / (totalCards - 1);
+                card.style.transform = `rotate(${angle}deg) translateY(-20px)`;
+            });
+        }
+
+        function handleCardHover() {
+            cards.forEach((card, index) => {
+                card.addEventListener('mouseenter', () => {
+                    cards.forEach(c => c.style.transform = c.style.transform.replace('translateY(0px)', ''));
+
+                    if (index > 0) {
+                        cards[index - 1].style.transform += ' translateY(-12px)';
+                    }
+                    card.style.transform += ' translateY(-26px)';
+                    if (index < cards.length - 1) {
+                        cards[index + 1].style.transform += ' translateY(-12px)';
+                    }
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    arrangeCards();
+                });
+            });
+        }
+
+        function handleCardClick() {
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    card.classList.add('enlarged');
+                    cards.forEach(c => {
+                        if (c !== card) {
+                            c.classList.add('hidden');
+                        }
+                    });
+
+                    setTimeout(() => {
+                        window.location.href = 'explan.html';
+                    }, 1000);
+                });
+            });
+        }
+
+        function shuffleCards() {
+            cards.forEach(card => {
+                card.style.transition = 'transform 0.5s ease';
+                card.style.transform = `rotate(0deg) translate(0, 0)`;
+            });
+
+            setTimeout(() => {
+                cloverOverlay.style.top = '50%'; // 카드 중앙 위치
+                cloverOverlay.style.left = '50%'; 
+                cloverOverlay.classList.add('fade-in');
+                setTimeout(() => {
+                    cloverOverlay.classList.remove('fade-in');
+                    cloverOverlay.classList.add('fade-out');
+                }, 500);
+            }, 600);
+
+            setTimeout(() => {
+                cloverOverlay.classList.remove('fade-out');
+                cards.forEach(card => {
+                    const randomAngle = Math.floor(Math.random() * 20) - 10;
+                    const randomTranslate = Math.floor(Math.random() * 40) - 20;
+                    card.style.transform = `rotate(${randomAngle}deg) translate(${randomTranslate}px, ${randomTranslate}px)`;
+                });
+            }, 1200);
+
+            setTimeout(() => {
+                arrangeCards();
+            }, 1800);
+        }
+
+        arrangeCards();
+        handleCardHover();
+        handleCardClick();
+    </script>
+</body>
+</html>

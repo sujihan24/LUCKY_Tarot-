@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Tarot Card</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            position: relative;
+            overflow: hidden; /* 네잎클로버가 화면 밖으로 튀지 않도록 설정 */
+            transition: background-color 1s ease;
+            cursor: url('small.png'), auto; /* 네잎클로버 커서 이미지 */
+        }
+
+        .container {
+            width: 283px; /* 카드 크기 키움 */
+            height: 400px; /* 카드 크기 키움 */
+            perspective: 1000px;
+            position: relative;
+            cursor: pointer;
+            z-index: 1; /* 카드 앞부분 */
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transform-origin: center;
+            transition: transform 0.6s ease, box-shadow 0.6s ease;
+            border-radius: 8px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .card:hover {
+            cursor: url('small2.png'), auto; /* 카드 hover 시 커서 변경 */
+        }
+
+        .overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            filter: brightness(1.1) opacity(0);
+            mix-blend-mode: color-dodge;
+            transition: all 0.1s;
+        }
+
+        .card .front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: contain; /* 이미지가 카드 크기 내에서 비율을 유지하도록 수정 */
+            background-position: center;
+            background-repeat: no-repeat; /* 이미지가 반복되지 않도록 설정 */
+            border-radius: 8px;
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+        }
+
+        .card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('back.jpg'); /* 기본 이미지 */
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            backface-visibility: hidden;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+            box-shadow: 0 0 30px 10px rgba(255, 255, 100, 0.8);
+        }
+
+        .text {
+            font-size: 24px; /* 텍스트 크기 키움 */
+            color: white;
+            width: 350px;
+            white-space: pre-wrap;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            position: absolute;
+            top: 50%;
+            left: 70%;
+            transform: translateY(-50%);
+            z-index: 2; /* 텍스트가 카드 앞에 오도록 설정 */
+            letter-spacing: 2px; /* 자간 조절 */
+            line-height: 1.8;  
+        }
+
+        /* 네잎클로버 애니메이션 */
+        .clover {
+            position: absolute;
+            width: 30px; /* 네잎클로버 크기 키움 */
+            height: 30px; /* 네잎클로버 크기 키움 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fall 3s ease-in, bounce 0.5s ease-out 2.5s, roll 2s linear 3s infinite;
+            z-index: 0; /* 네잎클로버를 카드와 텍스트 뒤로 배치 */
+        }
+
+        .clover .leaf {
+            position: absolute;
+            width: 15px; /* 네잎클로버 잎 크기 키움 */
+            height: 15px; /* 네잎클로버 잎 크기 키움 */
+            background-color: #00ff00;
+            border-radius: 50%;
+        }
+
+        .clover .leaf:nth-child(1) {
+            top: 0;
+            left: 7px;
+        }
+
+        .clover .leaf:nth-child(2) {
+            top: 7px;
+            left: 12px;
+            transform: rotate(90deg);
+        }
+
+        .clover .leaf:nth-child(3) {
+            top: 14px;
+            left: 7px;
+            transform: rotate(180deg);
+        }
+
+        .clover .leaf:nth-child(4) {
+            top: 7px;
+            left: 0;
+            transform: rotate(270deg);
+        }
+
+        /* 버튼 스타일 - 형광 초록색 원 */
+        .next-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px; /* 원의 크기 */
+            height: 60px; /* 원의 크기 */
+            border-radius: 50%; /* 원 모양으로 설정 */
+            background-color: #00ff00; /* 형광 초록색 */
+            cursor: pointer;
+            z-index: 10; /* 카드와 텍스트 위에 놓기 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 버튼 호버 시 색상 변경 */
+        .next-button:hover {
+            background-color: #66ff66; /* 호버 시 색상 */
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh); /* 화면 위로부터 떨어지도록 설정 */
+            }
+            100% {
+                transform: translateY(calc(100vh - 40px)); /* 화면 맨 아래로 떨어지도록 설정 (40px 여유) */
+            }
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px); /* 살짝 튕기는 애니메이션 */
+            }
+            100% {
+                transform: translateY(0); /* 다시 바닥으로 떨어짐 */
+            }
+        }
+
+        @keyframes roll {
+            0% {
+                transform: translateX(0) rotate(0deg);
+            }
+            50% {
+                transform: translateX(50px) rotate(180deg); /* 오른쪽으로 굴러가면서 회전 */
+            }
+            100% {
+                transform: translateX(0) rotate(360deg);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="overlay"></div>
+        <div class="card" id="card">
+            <div class="front" id="frontImage"></div>
+            <div class="back"></div>
+        </div>
+    </div>
+    <div class="text" id="text"></div>
+
+    <!-- 다음 페이지로 넘어가는 버튼 -->
+    <div class="next-button" id="nextButton">
+        <span>→</span> <!-- 화살표로 버튼 표시 -->
+    </div>
+
+    <script>
+        const container = document.querySelector('.container');
+        const overlay = document.querySelector('.overlay');
+        const card = document.getElementById('card');
+        const frontImage = document.getElementById('frontImage');
+        const textElement = document.getElementById('text');
+        const body = document.body;
+        const nextButton = document.getElementById('nextButton');
+
+        let isFlipped = false;
+        const textToType = [
+            "가장 탐나는 카드를 고르셨군요. 당신에게 어떤 행운을 가져다 줄 카드일까요? 협탁 위 카드 해설 리플렛을 확인하세요.",
+            "따끈 따끈.. 겨울에 가장 필요한 행운을 당신에게 가져다 줄 거예요. 협탁 위 카드 해설 리플렛을 확인하세요.",
+            "두근 두근.. 큐피드의 기운이 당신을 도울 것입니다.. 어떤 일이 생길까요? 협탁 위 카드 해설 리플렛을 확인하세요.",
+            "타이밍은 생명이죠. 열심히 뛰어도 아쉽게 타이밍을 놓치는 당신을 위한 카드입니다. 협탁 위 카드 해설 리플렛을 확인하세요.",
+            "'빨리,빨리! 언제 바뀌는 거야!'를 외치는 당신을 위한 카드입니다. 협탁 위 카드 해설 리플렛을 확인하세요.",
+            "항상 중요한 내기에서 지는 당신.. 오늘만큼은 승리자로 만들어 드릴게요. 협탁 위 카드 해설 리플렛을 확인하세요.",
+            "뭐야.. C밭이잖아? 나.. 이래도 되는걸까? 라며 좌절했던 당신. 이번 학기는 다릅니다. 카드가 어마어마한 행운을 가져다 줄 거거든요.. 협탁 위 카드 해설 리플렛을 확인하세요. "
+        ];
+
+        const frontImages = [
+            { url: 'T12.jpg', text: textToType[0], bgColor: '#9ff781' },
+            { url: 'T2.jpg', text: textToType[1], bgColor: '#61380B' },
+            { url: 'T3.jpg', text: textToType[2], bgColor: '#F5A9BC' },
+            { url: 'T4.jpg', text: textToType[3], bgColor: '#F78181' },
+            { url: 'T5.jpg', text: textToType[4], bgColor: '#BE81F7' },
+            { url: 'T6.jpg', text: textToType[5], bgColor: '#5882FA' },
+            { url: 'T7.jpg', text: textToType[6], bgColor: '#424242' },
+        ];
+
+        // 랜덤 이미지와 텍스트, 배경색 설정
+        function setRandomFrontImage() {
+            const randomIndex = Math.floor(Math.random() * frontImages.length);
+            const selectedImage = frontImages[randomIndex];
+            frontImage.style.backgroundImage = `url(${selectedImage.url})`;
+            textElement.innerHTML = selectedImage.text;
+            body.style.backgroundColor = selectedImage.bgColor;
+        }
+
+        // 네잎클로버 생성
+        function createClover() {
+            const clover = document.createElement('div');
+            clover.className = 'clover';
+            clover.style.left = `${Math.random() * 100}vw`;  // 랜덤으로 X 위치 지정
+
+            for (let i = 0; i < 4; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                clover.appendChild(leaf);
+            }
+
+            body.appendChild(clover);
+
+            // 애니메이션 끝나면 제거
+            setTimeout(() => clover.remove(), 5000);
+        }
+        
+        // 타이핑 효과 함수
+        function typeText(elementId, text) {
+            const element = document.getElementById(elementId);
+            let i = 0;
+            element.innerHTML = ''; // 기존 텍스트 초기화
+            const interval = setInterval(() => {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i); // 한 글자씩 추가
+                    i++;
+                } else {
+                    clearInterval(interval); // 타이핑 완료 시 인터벌 정지
+                }
+            }, 50); // 타이핑 속도
+        }
+
+        // 카드 클릭 이벤트
+        container.addEventListener('click', function () {
+            isFlipped = !isFlipped;
+
+            if (isFlipped) {
+                setRandomFrontImage(); // 카드를 뒤집었을 때 랜덤 이미지와 배경색 설정
+                card.classList.add('flipped');
+
+                // 네잎클로버 생성
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(createClover, i * 200);
+                }
+
+                setTimeout(() => typeText("text", textElement.innerHTML), 600); // 타이핑 효과
+                textElement.style.opacity = 1; // 텍스트 보이기
+            } else {
+                card.classList.remove('flipped');
+                body.style.backgroundColor = "#1a1a1a"; // 기본 배경색
+                textElement.style.opacity = 0; // 텍스트 숨기기
+            }
+        });
+
+        // 마우스 따라오는 원근감 효과
+        container.addEventListener('mousemove', function (e) {
+            const x = e.offsetX;
+            const y = e.offsetY;
+            const rotateY = -1 / 5 * x + 20;
+            const rotateX = 4 / 30 * y - 20;
+
+            overlay.style.backgroundPosition = `${x / 5 + y / 5}%`;
+            overlay.style.filter = `opacity(${x / 200 + 0.5}) brightness(1.2)`;
+
+            container.style.transform = `perspective(350px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        container.addEventListener('mouseout', function () {
+            overlay.style.filter = 'opacity(0)';
+            container.style.transform = 'perspective(350px) rotateY(0deg) rotateX(0deg)';
+        });
+
+        // 버튼 클릭 시 다음 페이지로 이동
+        nextButton.addEventListener('click', function () {
+            window.location.href = 'present.html'; // 페이지 이동
+        });
+    </script>
+</body>
+</html>
